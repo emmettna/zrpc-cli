@@ -1,5 +1,4 @@
 use std::io::BufRead;
-use serde_json;
 use serde_json::{json, Value};
 use crate::user_input;
 use user_input::*;
@@ -14,10 +13,7 @@ pub fn parse_usize(str: String, max_bound: &usize) -> Result<usize, String> {
 pub fn to_json(string_json: &String) -> Result<Value, String>{
     let empty: Value = json!("{}");
     if string_json.is_empty() { Ok(empty) } else {
-        match serde_json::from_str(string_json.as_str()) {
-            Ok(j) => Ok(j),
-            Err(e) => Err(e.to_string())
-        }
+        serde_json::from_str(string_json.as_str()).map_err(|e|e.to_string())
     }
 }
 

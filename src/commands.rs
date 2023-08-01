@@ -14,7 +14,7 @@ pub enum Commands {
 impl Commands {
     pub fn get_command_message(&self) -> Option<String> {
         match self {
-            Commands::Exit              => None,
+            Commands::Exit                    => None,
             Commands::UpdateHost              => Some(String::from("Type Host or `Enter` for \"localhost\"")),
             Commands::TakePortInput           => Some(String::from("Type Port or `Enter` for \"9090\"")),
             Commands::SendServiceListRequest  => Some(String::from("Select service to proceed")),
@@ -46,13 +46,13 @@ impl Commands {
 
     pub fn set_next_step(&mut self) {
         *self = match self {
-            Commands::UpdateHost => Commands::TakePortInput,
-            Commands::TakePortInput => Commands::SendServiceListRequest,
-            Commands::SendServiceListRequest => Commands::SendFunctionListRequest,
+            Commands::UpdateHost              => Commands::TakePortInput,
+            Commands::TakePortInput           => Commands::SendServiceListRequest,
+            Commands::SendServiceListRequest  => Commands::SendFunctionListRequest,
             Commands::SendFunctionListRequest => Commands::TakeBodyInput,
-            Commands::TakeBodyInput => Commands::SendRequest,
-            Commands::SendRequest => Commands::EndOfRequestSelection,
-            Commands::EndOfRequestSelection => Commands::Exit,
+            Commands::TakeBodyInput           => Commands::SendRequest,
+            Commands::SendRequest             => Commands::EndOfRequestSelection,
+            Commands::EndOfRequestSelection   => Commands::Exit,
             _ => unreachable!()
         }
     }

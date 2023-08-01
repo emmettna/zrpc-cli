@@ -2,9 +2,9 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Position {
-    First,
+    // First,
     Middle,
-    Last
+    // Last
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -33,7 +33,7 @@ pub enum JsonPart {
     Colon,
     Comma,
     LiteralElement(char),
-    NumericElement,
+    NumericElement(char),
     End,
 }
 
@@ -46,35 +46,37 @@ impl JsonPart {
     pub fn next_expected(part: &JsonPart) -> Vec<JsonPart> {
         use JsonPart::*;
         match part {
-            Start => vec![CurlyBracketOpen],
-            CurlyBracketOpen => vec![CurlyBracketClose, QuoteOpen],
+            Start             => vec![CurlyBracketOpen],
+            CurlyBracketOpen  => vec![CurlyBracketClose, QuoteOpen],
             CurlyBracketClose => vec![CurlyBracketClose, ListClose, Comma],
-            QuoteOpen => vec![LiteralElement(' '), QuoteClose],
-            QuoteClose => vec![Colon, Comma, CurlyBracketClose, ListClose],
-            ListOpen => vec![ListClose, CurlyBracketOpen, QuoteOpen, NumericElement],
-            ListClose => vec![CurlyBracketClose, ListClose, Comma],
-            Colon => vec![CurlyBracketOpen, QuoteOpen, ListOpen, NumericElement],
-            LiteralElement(s) => vec![LiteralElement(s.clone()), QuoteClose],
-            NumericElement => vec![NumericElement, CurlyBracketClose, Comma],
-            Comma => vec![QuoteOpen, CurlyBracketOpen, ListOpen, NumericElement],
-            End => vec![]
+            QuoteOpen         => vec![LiteralElement(' '), QuoteClose],
+            QuoteClose        => vec![Colon, Comma, CurlyBracketClose, ListClose],
+            ListOpen          => vec![ListClose, CurlyBracketOpen, QuoteOpen, NumericElement('0')],
+            ListClose         => vec![CurlyBracketClose, ListClose, Comma],
+            Colon             => vec![CurlyBracketOpen, QuoteOpen, ListOpen, NumericElement('0')],
+            LiteralElement(_) => vec![LiteralElement(' '), QuoteClose],
+            NumericElement(_) => vec![NumericElement('0'), CurlyBracketClose, Comma],
+            Comma             => vec![QuoteOpen, CurlyBracketOpen, ListOpen, NumericElement('0')],
+            End               => vec![]
         }
     }
 
-    pub fn perhaps_missed_this(prev: &JsonPart, current: &JsonPart, current_stack: &JsonPart) -> (Option<JsonPart>, Position) {
+    pub fn perhaps_missed_this(prev: &JsonPart, current: &JsonPart, _current_stack: &JsonPart) -> (Option<JsonPart>, Position) {
         use JsonPart::*;
         (match (prev, current) {
-            (Start, QuoteOpen) => Some(CurlyBracketOpen),
-            (Start, LiteralElement(_)) => Some(QuoteOpen),
-            (CurlyBracketOpen, LiteralElement(_)) => Some(QuoteOpen),
-            (LiteralElement(_), Colon) => Some(QuoteClose),
-            (Colon, LiteralElement(' ')) => None,
-            (Colon, LiteralElement(_)) => Some(QuoteOpen),
-            (LiteralElement(_), CurlyBracketClose) => Some(QuoteClose),
-            (LiteralElement(_), End) => Some(QuoteClose),
-            (QuoteClose, End) => Some(CurlyBracketClose),
-            (QuoteClose, QuoteOpen) => Some(Colon),
-            (QuoteClose, CurlyBracketClose) => Some(Colon),
+            (Start, QuoteOpen)                         => Some(CurlyBracketOpen),
+            (Start, LiteralElement(_))                 => Some(QuoteOpen),
+            (Start, NumericElement(_))                 => Some(QuoteOpen),
+            (CurlyBracketOpen, LiteralElement(_))      => Some(QuoteOpen),
+            (LiteralElement(_), Colon)                 => Some(QuoteClose),
+            (Colon, LiteralElement(' '))               => None,
+            (Colon, LiteralElement(_))                 => Some(QuoteOpen),
+            (LiteralElement(_), CurlyBracketClose)     => Some(QuoteClose),
+            (LiteralElement(_), End)                   => Some(QuoteClose),
+            (NumericElement(_), End)                   => Some(CurlyBracketClose),
+            (QuoteClose, End)                          => Some(CurlyBracketClose),
+            (QuoteClose, QuoteOpen)                    => Some(Colon),
+            (QuoteClose, CurlyBracketClose)            => Some(Colon),
             (LiteralElement(' '), LiteralElement(' ')) => None,
             _c => None
         }, Position::Middle)
@@ -88,10 +90,6 @@ pub struct JsonPartStack {
 
 impl JsonPartStack {
     pub fn new() -> JsonPartStack { JsonPartStack { stack: vec![] } }
-
-    pub fn maybe_last(&self) -> Option<JsonPart> {
-        self.stack.last().map(|v| v.clone())
-    }
 
     pub fn push(&mut self, part: JsonPart) -> Result<(), String> {
         fn handle_closing_case(upper: &mut JsonPartStack, incoming_part: &JsonPart, expected: JsonPart) -> Result<(), String> {
@@ -116,7 +114,7 @@ impl JsonPartStack {
             CurlyBracketClose => handle_closing_case(self, &part, CurlyBracketOpen),
             QuoteClose => handle_closing_case(self, &part, QuoteOpen),
             ListClose => handle_closing_case(self, &part, ListOpen),
-            LiteralElement(_) | NumericElement | Colon | Comma => Ok(()),
+            LiteralElement(_) | NumericElement(_) | Colon | Comma => Ok(()),
             Start => Ok(()),
             End => if !(&self.stack.is_empty()) {
                 Err(format!("Supposed to be empty by now but got {:?}", &self.stack))
@@ -166,7 +164,7 @@ impl JsonPartStack {
                 ',' => container.push(Comma),
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
                     match quote_flag {
-                        QuoteStatus::Close => container.push(NumericElement),
+                        QuoteStatus::Close => container.push(NumericElement(e)),
                         QuoteStatus::Open => container.push(LiteralElement(e)),
                     }
                 }
@@ -203,7 +201,7 @@ impl JsonPartStack {
                 Colon => ':',
                 Comma => ',',
                 LiteralElement(char) => *char,
-                NumericElement => '0',
+                NumericElement(char) => *char,
                 End | Start => continue
             };
             vec.push(character)

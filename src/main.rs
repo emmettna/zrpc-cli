@@ -1,6 +1,5 @@
 use std::ops::Index;
 use log::error;
-use tonic::codegen::Service;
 
 mod grpc_request_dsl;
 mod user_input;
@@ -69,13 +68,13 @@ fn handle_command(
 
         Commands::TakeBodyInput => {
             command.print_command_message();
-            let joined = multi_line_input().map(|lines| lines.join(("\n")))?;
+            let joined = multi_line_input().map(|lines| lines.join("\n"))?;
             match to_json(&joined) {
                 Ok(j) => {
                     service_request.update_body(j.to_string());
                     Ok(command.set_next_step())
                 }
-                Err(e) => {
+                Err(_) => {
                     let j = SmartParser::new(joined.as_str()).parse()?;
                     let json_string = (&j).to_string();
                     println!("Invalid JSON format. Did you mean this instead?\n\n => {}", json_string);
