@@ -39,7 +39,7 @@ fn handle_command(
 
         Commands::TakePortInput => {
             command.print_command_message();
-            emptiable_input(user_input, "50052");
+            emptiable_input(user_input, "9090");
             let port = Port::from(user_input.get_last_input())?;
             service_request.update_port(port);
             Ok(command.set_next_step())

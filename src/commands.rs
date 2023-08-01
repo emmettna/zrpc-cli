@@ -16,12 +16,12 @@ impl Commands {
         match self {
             Commands::Exit              => None,
             Commands::UpdateHost              => Some(String::from("Type Host or `Enter` for \"localhost\"")),
-            Commands::TakePortInput           => Some(String::from("Type Port or `Enter` for \"50052\"")),
+            Commands::TakePortInput           => Some(String::from("Type Port or `Enter` for \"9090\"")),
             Commands::SendServiceListRequest  => Some(String::from("Select service to proceed")),
             Commands::SendFunctionListRequest => Some(String::from("Select function to proceed")),
             Commands::TakeBodyInput           => Some(String::from("Type request body\nType 3 new lines in order to finish(`Enter` 3 times)\nex) {\"name\": \"Johnny\"}")),
             Commands::SendRequest             => Some(String::from("Sent request")),
-            Commands::EndOfRequestSelection   => Some(String::from("Press `Enter` if want to repeat the same request. Other wise select which Sequence
+            Commands::EndOfRequestSelection   => Some(String::from("Press `Enter` if want to repeat the same request.\nOtherwise select which step number
     1. Set Host
     2. Set Port
     3. Set Service
