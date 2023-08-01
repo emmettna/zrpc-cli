@@ -1,0 +1,6 @@
+{
+  "log_level" : "debug",
+  "auto_correction": {
+    "max_attempt" : 5
+  }
+}
