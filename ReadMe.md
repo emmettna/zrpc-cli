@@ -71,3 +71,7 @@ Press `Enter` if want to repeat the same request. Other wise select which Sequen
 
 ```
 - [Used this grpc server for above example](https://github.com/emmettna/sample_tonic_grpc_server)
+
+## What is NOT available
+- TLS nor SSL
+- Grpc server which does not provide descriptor/reflection
