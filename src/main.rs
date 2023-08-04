@@ -10,7 +10,11 @@ mod json_domain;
 mod smart_parser;
 mod logger;
 mod config_loader;
+mod ui;
+mod ui_states;
 
+use ui::*;
+use crate::ui_states::*;
 use grpc_request_dsl::*;
 use user_input::*;
 use util::*;
@@ -116,27 +120,59 @@ fn handle_command(
     }
 }
 
-fn main() {
-    let config = config_loader::config();
-    let _ = logger::init(config);
+// fn main() {
+//     let config = config_loader::config();
+//     let _ = logger::init(config);
+//
+//     let mut command: Commands = Commands::UpdateHost;
+//     let mut service_request = ServiceRequest::default();
+//     let mut user_input = UserInput::empty();
+//     let mut continuous_error_count: u8 = 0;
+//
+//     loop {
+//         if command == Commands::Exit { break; } else {
+//             if continuous_error_count > 10 {
+//                 error!("Exiting after failing 10 consecutive times");
+//                 command.set(Commands::Exit)
+//             }
+//             if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input) {
+//                 eprintln!("Failed while handling command `{}`", msg);
+//                 continuous_error_count += 1
+//             } else {
+//                 continuous_error_count = 0
+//             }
+//         }
+//     }
+// }
 
-    let mut command: Commands = Commands::UpdateHost;
-    let mut service_request = ServiceRequest::default();
-    let mut user_input = UserInput::empty();
-    let mut continuous_error_count: u8 = 0;
+use crossterm::{
+    event::{DisableMouseCapture, EnableMouseCapture},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
+use std::{error::Error, io};
+use tui::{
+    backend::{Backend, CrosstermBackend},
+    Terminal,
+};
 
-    loop {
-        if command == Commands::Exit { break; } else {
-            if continuous_error_count > 10 {
-                error!("Exiting after failing 10 consecutive times");
-                command.set(Commands::Exit)
-            }
-            if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input) {
-                eprintln!("Failed while handling command `{}`", msg);
-                continuous_error_count += 1
-            } else {
-                continuous_error_count = 0
-            }
-        }
-    }
+fn main() -> Result<(), Box<dyn Error>> {
+
+    let app_state = AppState::new();
+
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+
+    let res = run_app(&mut terminal, app_state);
+
+    disable_raw_mode()?;
+    execute!(terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
+    terminal.show_cursor()?;
+
+    if let Err(e) = res { eprintln!("{:?}", e) }
+
+    Ok(())
 }

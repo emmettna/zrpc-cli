@@ -94,7 +94,6 @@ impl ServiceRequest {
         Self::new(Host::from(String::from("localhost")).unwrap())
     }
 
-
     pub fn new(host: Host) -> ServiceRequest {
         ServiceRequest {
             host,
@@ -131,5 +130,9 @@ impl ServiceRequest {
 
     pub fn update_body(&mut self, body: String) {
         self.body = RequestBody(body)
+    }
+
+    pub fn pretty_string(&self) -> String {
+        format!("Host: {}\nPort: {}\nServiceName: {}\nMethod: {}\nbody: {}", self.host, self.port, self.service_name, self.service_function, self.body)
     }
 }
