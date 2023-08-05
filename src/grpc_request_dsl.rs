@@ -1,6 +1,6 @@
 use std::fmt::Formatter;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Host(pub String);
 
 impl Host {
@@ -21,7 +21,7 @@ impl std::fmt::Display for Host {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Port(pub u16);
 
 impl Port {
@@ -39,7 +39,7 @@ impl std::fmt::Display for Port {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct RequestBody(pub String);
 
 impl RequestBody {
@@ -54,7 +54,7 @@ impl std::fmt::Display for RequestBody {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ServiceFunction(pub String);
 
 impl ServiceFunction {
@@ -67,7 +67,7 @@ impl std::fmt::Display for ServiceFunction {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ServiceName(pub String);
 
 impl ServiceName {
@@ -80,7 +80,7 @@ impl std::fmt::Display for ServiceName {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ServiceRequest {
     pub host: Host,
     pub port: Port,
@@ -93,7 +93,6 @@ impl ServiceRequest {
     pub fn default() -> ServiceRequest {
         Self::new(Host::from(String::from("localhost")).unwrap())
     }
-
 
     pub fn new(host: Host) -> ServiceRequest {
         ServiceRequest {
@@ -131,5 +130,9 @@ impl ServiceRequest {
 
     pub fn update_body(&mut self, body: String) {
         self.body = RequestBody(body)
+    }
+
+    pub fn pretty_string(&self) -> String {
+        format!("Host: {}\nPort: {}\nServiceName: {}\nMethod: {}\nbody: {}", self.host, self.port, self.service_name, self.service_function, self.body)
     }
 }

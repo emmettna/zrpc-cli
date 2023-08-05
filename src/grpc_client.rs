@@ -12,7 +12,7 @@ fn output_handler(output: &Output) -> Result<Vec<String>, String> {
         let default = String::from("None");
         let error_code = output.status.code().map_or_else(||default, |i| i.to_string());
         match std::str::from_utf8(&output.stderr) {
-            Ok(msg) => Ok(vec![format!("Failed at code {} for reason: {}",error_code, msg)]),
+            Ok(msg) => Ok(vec![format!("Failed at code {} for reason: {}", error_code, msg)]),
             Err(e) => Ok(vec![format!("Failed to parse err output at code {}, reason:\n{}", error_code, e)])
         }
     }
