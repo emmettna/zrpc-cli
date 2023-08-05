@@ -34,7 +34,7 @@ impl Commands {
         }
     }
     pub fn print_command_message(&self) -> () {
-        match Commands::get_command_message(self) {
+        match Self::get_command_message(self) {
             Some(message) => println!("{}", message),
             None => ()
         }
