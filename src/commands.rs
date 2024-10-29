@@ -1,4 +1,5 @@
 use std::fmt::Formatter;
+use colored::*;
 
 #[derive(Debug, PartialEq)]
 pub enum Commands {
@@ -35,7 +36,15 @@ impl Commands {
     }
     pub fn print_command_message(&self) -> () {
         match Commands::get_command_message(self) {
-            Some(message) => println!("{}", message),
+            Some(message) => {
+                let colored_message = match self {
+                    Commands::UpdateHost | Commands::TakePortInput | Commands::SendServiceListRequest | Commands::SendFunctionListRequest | Commands::TakeBodyInput => message.blue(),
+                    Commands::SendRequest => message.green(),
+                    Commands::EndOfRequestSelection => message.yellow(),
+                    _ => message.normal(),
+                };
+                println!("{}", colored_message);
+            },
             None => ()
         }
     }
