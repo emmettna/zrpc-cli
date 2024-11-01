@@ -1,5 +1,6 @@
 use std::ops::Index;
 use log::error;
+use colored::*;
 
 mod grpc_request_dsl;
 mod user_input;
@@ -77,8 +78,8 @@ fn handle_command(
                 Err(_) => {
                     let j = SmartParser::new(joined.as_str()).parse()?;
                     let json_string = (&j).to_string();
-                    println!("Invalid JSON format. Did you mean this instead?\n\n => {}", json_string);
-                    println!("\n\t1: Yes\n\t2: No");
+                    println!("Invalid JSON format. Did you mean this instead?\n\n => {}", json_string.blue());
+                    println!("{}{}", "\n\t1: Yes".green(), "\n\t2: No".color("red"));
                     non_empty_input(user_input)?;
                     let user_selection_index = parse_usize(user_input.get_last_input(), &(2 as usize))?;
                     if user_selection_index == 1 {
