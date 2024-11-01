@@ -1,6 +1,5 @@
 use std::fmt::Formatter;
-use colored::*;
-use crate::text_coloring::{toGreen, toRed, toBlue, toYellow, toCyan};
+use crate::text_coloring::{toSuccess, toError, toPlainMessage, toWarn, toCyan};
 
 #[derive(Debug, PartialEq)]
 pub enum Commands {
@@ -39,9 +38,9 @@ impl Commands {
         match Commands::get_command_message(self) {
             Some(message) => {
                 let colored_message = match self {
-                    Commands::UpdateHost | Commands::TakePortInput | Commands::SendServiceListRequest | Commands::SendFunctionListRequest | Commands::TakeBodyInput => toBlue(&message),
-                    Commands::SendRequest => toGreen(&message),
-                    Commands::EndOfRequestSelection => toYellow(&message),
+                    Commands::UpdateHost | Commands::TakePortInput | Commands::SendServiceListRequest | Commands::SendFunctionListRequest | Commands::TakeBodyInput => toPlainMessage(&message),
+                    Commands::SendRequest => toSuccess(&message),
+                    Commands::EndOfRequestSelection => toWarn(&message),
                     _ => message.normal(),
                 };
                 println!("{}", colored_message);
