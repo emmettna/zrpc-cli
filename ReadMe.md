@@ -1,9 +1,8 @@
 # ZRPC-CLI
 ## What is zrpc-cli
-- Reflection based grpc client using `grpcurl` under the hood
+- Reflection based grpc client using Rust libraries
 
 ## Pre-requisite
-- [grpcurl](https://github.com/fullstorydev/grpcurl)
 - Grpc server providing descriptor(s)
   - [an example can be found at tonic](https://github.com/hyperium/tonic/blob/master/examples/src/reflection/server.rs)
 
