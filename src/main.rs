@@ -11,6 +11,7 @@ mod json_domain;
 mod smart_parser;
 mod logger;
 mod config_loader;
+mod text_coloring;
 
 use grpc_request_dsl::*;
 use user_input::*;
