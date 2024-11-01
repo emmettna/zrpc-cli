@@ -1,18 +1,18 @@
 use colored::{ColoredString, Colorize};
 
-pub fn toGreen(text: &str) -> ColoredString {
+pub fn toSuccess(text: &str) -> ColoredString {
     text.green()
 }
 
-pub fn toRed(text: &str) -> ColoredString {
+pub fn toError(text: &str) -> ColoredString {
     text.red()
 }
 
-pub fn toBlue(text: &str) -> ColoredString {
+pub fn toPlainMessage(text: &str) -> ColoredString {
     text.blue()
 }
 
-pub fn toYellow(text: &str) -> ColoredString {
+pub fn toWarn(text: &str) -> ColoredString {
     text.yellow()
 }
 
