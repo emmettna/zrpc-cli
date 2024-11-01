@@ -1,5 +1,5 @@
 use std::fmt::Formatter;
-use crate::text_coloring::{to_success, to_error, to_plain_msg, to_warn, to_unknown, to_plain};
+use crate::text_coloring::{to_plain_msg, to_plain};
 
 #[derive(Debug, PartialEq)]
 pub enum Commands {
