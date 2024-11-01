@@ -10,7 +10,7 @@ pub async fn request_service_list(host: &Host, port: &Port) -> Result<Vec<Servic
     let mut client = tonic::client::Grpc::new(channel);
 
     let request = tonic::Request::new(());
-    let response = client.unary(request, "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo".parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
+    let response: tonic::Response<tonic::Status> = client.unary(request, "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo".parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
 
     let services: Vec<ServiceName> = response.into_inner().services.iter().map(|s| ServiceName(s.clone())).collect();
     Ok(services)
@@ -26,7 +26,7 @@ pub async fn request_function_list(host: &Host, port: &Port, service: &ServiceNa
     let mut client = tonic::client::Grpc::new(channel);
 
     let request = tonic::Request::new(());
-    let response = client.unary(request, "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo".parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
+    let response: tonic::Response<tonic::Status> = client.unary(request, "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo".parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
 
     let functions: Vec<ServiceFunction> = response.into_inner().services.iter().filter(|s| s.starts_with(&service.0)).map(|s| ServiceFunction(s.clone())).collect();
     Ok(functions)
@@ -38,7 +38,7 @@ pub async fn request(service_request: &ServiceRequest) -> Result<String, Box<dyn
     let mut client = tonic::client::Grpc::new(channel);
 
     let request = tonic::Request::new(service_request.body.0.clone());
-    let response = client.unary(request, format!("/{}/{}", service_request.service_name.0, service_request.service_function.0).parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
+    let response: tonic::Response<tonic::Status> = client.unary(request, format!("/{}/{}", service_request.service_name.0, service_request.service_function.0).parse().unwrap(), tonic::codec::ProstCodec::default()).await?;
 
     Ok(response.into_inner())
 }

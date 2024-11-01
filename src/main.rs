@@ -17,13 +17,34 @@ use user_input::*;
 use util::*;
 use smart_parser::*;
 use crate::commands::Commands;
-use crate::text_coloring::{to_plain_msg, to_plain};
 
-fn print_divider() -> () {
-    println!("---------------------------------------------------\n")
+#[tokio::main]
+async fn main() {
+    let config = config_loader::config();
+    let _ = logger::init(config);
+
+    let mut command: Commands = Commands::UpdateHost;
+    let mut service_request = ServiceRequest::default();
+    let mut user_input = UserInput::empty();
+    let mut continuous_error_count: u8 = 0;
+
+    loop {
+        if command == Commands::Exit { break; } else {
+            if continuous_error_count > 10 {
+                error!("Exiting after failing 10 consecutive times");
+                command.set(Commands::Exit)
+            }
+            if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input).await {
+                eprintln!("Failed while handling command `{}`", msg);
+                continuous_error_count += 1
+            } else {
+                continuous_error_count = 0
+            }
+        }
+    }
 }
 
-fn handle_command(
+async fn handle_command(
     command: &mut Commands,
     service_request: &mut ServiceRequest,
     user_input: &mut UserInput,
@@ -118,28 +139,6 @@ fn handle_command(
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let config = config_loader::config();
-    let _ = logger::init(config);
-
-    let mut command: Commands = Commands::UpdateHost;
-    let mut service_request = ServiceRequest::default();
-    let mut user_input = UserInput::empty();
-    let mut continuous_error_count: u8 = 0;
-
-    loop {
-        if command == Commands::Exit { break; } else {
-            if continuous_error_count > 10 {
-                error!("Exiting after failing 10 consecutive times");
-                command.set(Commands::Exit)
-            }
-            if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input).await {
-                eprintln!("Failed while handling command `{}`", msg);
-                continuous_error_count += 1
-            } else {
-                continuous_error_count = 0
-            }
-        }
-    }
+fn print_divider() -> () {
+    println!("---------------------------------------------------\n")
 }
