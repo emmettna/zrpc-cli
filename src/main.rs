@@ -1,4 +1,3 @@
-use std::ops::Index;
 use log::error;
 use colored::*;
 
@@ -18,7 +17,7 @@ use user_input::*;
 use util::*;
 use smart_parser::*;
 use crate::commands::Commands;
-use crate::text_coloring::{to_success, to_error, to_plain_msg, to_warn, to_unknown, to_plain};
+use crate::text_coloring::{to_plain_msg, to_plain};
 
 fn print_divider() -> () {
     println!("---------------------------------------------------\n")
@@ -49,22 +48,22 @@ fn handle_command(
 
         Commands::SendServiceListRequest => {
             command.print_command_message();
-            let services = grpc_client::request_service_list(&service_request.host, &service_request.port);
+            let services = grpc_client::request_service_list(&service_request.host, &service_request.port).await?;
             services.iter().enumerate().for_each(|(i, s)| println!("[{}] {}", i, s.0));
             let _ = non_empty_input(user_input)?;
             let user_selection_index = parse_usize(user_input.get_last_input(), &services.len())?;
-            let selected_service = services.index(user_selection_index).clone();
+            let selected_service = services[user_selection_index].clone();
             service_request.update_service(selected_service);
             Ok(command.set_next_step())
         }
 
         Commands::SendFunctionListRequest => {
             command.print_command_message();
-            let functions = grpc_client::request_function_list_by(service_request);
+            let functions = grpc_client::request_function_list_by(service_request).await?;
             functions.iter().enumerate().for_each(|(i, s)| println!("[{}] {}", i, s.0));
             let _ = non_empty_input(user_input)?;
             let user_selection_index = parse_usize(user_input.get_last_input(), &functions.len())?;
-            let selected_function = functions.index(user_selection_index).clone();
+            let selected_function = functions[user_selection_index].clone();
             service_request.update_function(selected_function);
             Ok(command.set_next_step())
         }
@@ -95,7 +94,7 @@ fn handle_command(
 
         Commands::SendRequest => {
             command.print_command_message();
-            let response = grpc_client::request(&service_request)?;
+            let response = grpc_client::request(&service_request).await?;
             println!("Server response:\n{}", response);
             Ok(command.set_next_step())
         }
@@ -119,7 +118,8 @@ fn handle_command(
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config = config_loader::config();
     let _ = logger::init(config);
 
@@ -134,7 +134,7 @@ fn main() {
                 error!("Exiting after failing 10 consecutive times");
                 command.set(Commands::Exit)
             }
-            if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input) {
+            if let Err(msg) = handle_command(&mut command, &mut service_request, &mut user_input).await {
                 eprintln!("Failed while handling command `{}`", msg);
                 continuous_error_count += 1
             } else {
