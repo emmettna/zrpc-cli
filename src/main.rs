@@ -11,12 +11,14 @@ mod json_domain;
 mod smart_parser;
 mod logger;
 mod config_loader;
+mod text_coloring;
 
 use grpc_request_dsl::*;
 use user_input::*;
 use util::*;
 use smart_parser::*;
 use crate::commands::Commands;
+use crate::text_coloring::{to_success, to_error, to_plain_msg, to_warn, to_unknown, to_plain};
 
 fn print_divider() -> () {
     println!("---------------------------------------------------\n")
@@ -79,7 +81,7 @@ fn handle_command(
                     let j = SmartParser::new(joined.as_str()).parse()?;
                     let json_string = (&j).to_string();
                     println!("Invalid JSON format. Did you mean this instead?\n\n => {}", json_string.blue());
-                    println!("{}{}", "\n\t1: Yes".green(), "\n\t2: No".color("red"));
+                    println!("{}{}", "\n\t1: Yes", "\n\t2: No".color("red"));
                     non_empty_input(user_input)?;
                     let user_selection_index = parse_usize(user_input.get_last_input(), &(2 as usize))?;
                     if user_selection_index == 1 {

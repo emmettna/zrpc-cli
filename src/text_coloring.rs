@@ -1,21 +1,25 @@
 use colored::{ColoredString, Colorize};
 
-pub fn toSuccess(text: &str) -> ColoredString {
+pub fn to_success(text: &str) -> ColoredString {
     text.green()
 }
 
-pub fn toError(text: &str) -> ColoredString {
+pub fn to_error(text: &str) -> ColoredString {
     text.red()
 }
 
-pub fn toPlainMessage(text: &str) -> ColoredString {
+pub fn to_plain_msg(text: &str) -> ColoredString {
     text.blue()
 }
 
-pub fn toWarn(text: &str) -> ColoredString {
+pub fn to_warn(text: &str) -> ColoredString {
     text.yellow()
 }
 
-pub fn toCyan(text: &str) -> ColoredString {
+pub fn to_unknown(text: &str) -> ColoredString {
     text.cyan()
+}
+
+pub fn to_plain(text: &str) -> ColoredString {
+    text.white()
 }
